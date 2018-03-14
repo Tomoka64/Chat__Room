@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -10,6 +11,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"google.golang.org/appengine/log"
 	"google.golang.org/appengine/memcache"
+	"google.golang.org/appengine/user"
 )
 
 func PostProcess(w http.ResponseWriter, r *http.Request) {
@@ -53,18 +55,20 @@ func ReplyProcess(w http.ResponseWriter, r *http.Request) {
 		log.Errorf(ctx, "error getting postss: %v", err)
 		http.Redirect(w, r, "/login", 302)
 	} else {
-		var user User
-		json.Unmarshal(memItem.Value, &user)
-		log.Infof(ctx, user.UserName)
+		var message Message
+		json.Unmarshal(memItem.Value, &message)
+		log.Infof(ctx, message.Isbn)
+		user := user.Current(ctx)
 
 		reply := r.FormValue("Reply")
 
 		post := Reply{
+			Isbn:     message.Isbn,
 			Responce: reply,
 			Created:  time.Now(),
-			Username: user.UserName,
+			Username: *user,
 		}
-		userKey := datastore.NewKey(ctx, "User", user.UserName, 0, nil)
+		userKey := datastore.NewKey(ctx, "Message", message.Isbn, 0, nil)
 		key := datastore.NewIncompleteKey(ctx, "Reply", userKey)
 		_, err := datastore.Put(ctx, key, &post)
 		if err != nil {
@@ -137,4 +141,22 @@ func loginProcess(w http.ResponseWriter, r *http.Request) {
 		createSession(w, r, user)
 		tpl.ExecuteTemplate(w, "home.html", user)
 	}
+}
+
+func logoutProcess(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	cookie, err := r.Cookie("session")
+	if err != nil {
+		http.Redirect(w, r, "/", 302)
+	}
+	sd := memcache.Item{
+		Key:        cookie.Value,
+		Value:      []byte(""),
+		Expiration: time.Duration(1 * time.Microsecond),
+	}
+	memcache.Set(ctx, &sd)
+
+	cookie.MaxAge = -1
+	http.SetCookie(w, cookie)
+	http.Redirect(w, r, "/", 302)
 }

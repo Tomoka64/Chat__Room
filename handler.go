@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"google.golang.org/appengine"
@@ -27,7 +26,6 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		}
 		msgs = append(msgs, &msg)
 	}
-	fmt.Println(ctx, msgs)
 
 	if err := tpl.ExecuteTemplate(w, "public.html", msgs); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

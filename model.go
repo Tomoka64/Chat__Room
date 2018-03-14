@@ -2,11 +2,12 @@ package main
 
 import (
   "time"
+  "google.golang.org/appengine/user"
 )
 
 type User struct {
 	Email    string
-	UserName string `datastore:"username"`
+	UserName string `datastore:"-"`
 	Password string `json:"-"`
 }
 
@@ -18,6 +19,7 @@ type SessionData struct {
 }
 
 type Message struct {
+  Isbn string `json:"isbn"`
   Username string`datastore:"username"`
   Created time.Time `datastore:"createdAt"`
   Msg string `datastore:"message"`
@@ -25,7 +27,8 @@ type Message struct {
 }
 
 type Reply struct {
-  Username string`datastore:"username"`
+  Isbn string
+  Username user.User
   Responce string `datastore:"reply"`
-  Created time.Time `datastore:"createdAt"`
+  Created time.Time `datastore:"replycreatedAt"`
 }
