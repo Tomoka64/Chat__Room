@@ -1,0 +1,8 @@
+{{template "header"}}
+{{range .}}
+  <div class="container">
+    <p1>{{.Username}} - {{.Msg}} - reply: <form action="/reply-process" method="POST"><input type="text" name="Reply" placeholder="Reply"></form><p1>
+  </div>
+{{end}}
+<h1><a href= "/post">make a new post</h1>
+{{template "footer"}}

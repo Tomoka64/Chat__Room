@@ -1,0 +1,11 @@
+{{template "header"}}
+<h1>welcome to chatroom</h1>
+<form method="POST" action="/api/loginprocess">
+  <input id="userName" name="userName" placeholder="Enter your user name">
+        <p class="form-field-err"></p>
+        <input id="password" name="password" type="password" placeholder="Enter your password">
+        <p class="form-field-err"></p>
+        <button>Submit</button>
+</form>
+<a href="/signup" id="create-account">You dont have an account?</a>
+{{template "footer"}}
